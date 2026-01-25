@@ -1,116 +1,251 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap');
 
+/* VS Code Terminal Aesthetic */
 :root {
-    --bg-color: #1a1a1a;
-    --text-color: #e0e0e0;
-    --border-radius: 9999px;
+    --bg-color: #1e1e1e;
+    --status-bar-bg: #1e1e1e;
+    /* Same as box */
+    --border-color: #333333;
+    /* Subtle separator */
+    --text-color: #cccccc;
+    --dim-text: #666666;
+    --border-radius: 4px;
+    --font-family: 'Source Code Pro', monospace;
 }
 
 body {
+    background-color: transparent;
+    /* Main window is transparent */
     margin: 0;
     padding: 0;
     width: 100vw;
     height: 100vh;
     display: flex;
+    display: flex;
     justify-content: center;
-    align-items: center;
-    background-color: transparent;
-    font-family: 'Inter', sans-serif;
+    /* Align to bottom so we can animate up or just sit there */
+    align-items: flex-end;
+    padding-bottom: 20px;
+    /* Space for shadow/border */
+    box-sizing: border-box;
+    font-family: var(--font-family);
     overflow: hidden;
 }
 
-/* The Container - Robust Flex Centering */
+/* The Main Window Frame */
 .container {
     position: relative;
-    width: 90%;
-    max-width: 900px;
-    height: 60px;
+    width: 95%;
+    max-width: 950px;
+    height: calc(100% - 20px);
+    /* Account for padding */
     display: flex;
-    justify-content: center;
-    align-items: center;
-    /* Static background */
-    background: #0f0f12;
-    border-radius: var(--border-radius);
+    flex-direction: column;
 
-    /* 
-       LAYER 1: The "Razor" Neon Border 
-       No pseudo-elements, just a solid border that we will animate via color.
-       This is bulletproof.
-    */
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius);
     border: 1px solid transparent;
-    /* Super thin 1px border */
-    /* Placeholder for gradient */
-    background-image: linear-gradient(#0f0f12, #0f0f12),
-        linear-gradient(90deg, #ff00de, #00ffcc, #3333ff);
-    background-origin: border-box;
-    background-clip: padding-box, border-box;
+    animation: rgbBorder 12s linear infinite;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 
-    /* 
-       LAYER 2: The "Laser" Glow 
-       Much tighter shadow with less blur to look sharp.
-    */
-    box-shadow: 0 0 4px rgba(255, 0, 222, 0.8);
-
-    animation: gradientBorder 4s linear infinite,
-        breathingShadow 3s ease-in-out infinite alternate;
+    opacity: 1;
+    opacity: 1;
+    transition: opacity 0.2s ease-out;
 }
 
-/* No Pseudo-elements needed for valid, robust rendering */
-.container::before,
-.container::after {
-    display: none;
-}
-
-/* The Static Input Box - Interior Only */
-.inner-box {
+/* --- DRAG HANDLE (HEADER) --- */
+.window-header {
     width: 100%;
-    height: 100%;
-    /* Transparent because container handles the black bg */
-    background: transparent;
-    border-radius: var(--border-radius);
+    height: 16px;
+    /* Explicit drag zone height */
     display: flex;
     align-items: center;
-    padding: 0 25px;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: grab;
 }
 
-@keyframes gradientBorder {
-    0% {
-        filter: hue-rotate(0deg);
-    }
-
-    100% {
-        filter: hue-rotate(360deg);
-    }
+.drag-grip {
+    width: 60px;
+    /* Wider */
+    height: 6px;
+    /* Thicker */
+    background-image: radial-gradient(circle, #666 1.5px, transparent 1.5px);
+    background-size: 4px 4px;
+    opacity: 0.7;
+    border-radius: 4px;
 }
 
-@keyframes breathingShadow {
-    0% {
-        box-shadow: 0 0 2px rgba(255, 0, 222, 0.5), inset 0 0 0px transparent;
-    }
-
-    100% {
-        box-shadow: 0 0 8px rgba(0, 255, 204, 0.9), inset 0 0 2px rgba(255, 255, 255, 0.1);
-    }
+/* Exit State */
+.container.animate-exit {
+    opacity: 0;
 }
 
-input {
+/* --- INPUT AREA --- */
+.input-area {
     width: 100%;
+    /* Remaining height */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* Vertically centered */
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Align top in expanded mode */
+.expanded .input-area {
+    align-items: flex-start;
+    padding-top: 20px;
+}
+
+/* --- Controls Area --- */
+.controls-area {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* Space between items */
+    margin-left: 15px;
+    height: 24px;
+    /* Fix height for alignment */
+}
+
+.control-btn {
+    width: 24px;
+    height: 24px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    transition: all 0.2s;
+}
+
+.control-btn:hover {
+    border-color: #888;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.close-btn:hover {
+    border-color: #ff5555;
+    color: #ff5555;
+    background: rgba(255, 85, 85, 0.1);
+}
+
+.close-btn.confirm {
+    background: #ff5555;
+    color: #fff;
+    border-color: #ff5555;
+    font-weight: bold;
+}
+
+.prompt {
+    color: #ff00de;
+    /* Neon Pink Prompt */
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 14px;
+    animation: rgbText 12s linear infinite;
+}
+
+/* The RGB Animation logic - DIMMED BRIGHTNESS */
+@keyframes rgbBorder {
+    0% {
+        border-color: rgba(255, 0, 222, 0.4);
+        box-shadow: 0 0 8px rgba(255, 0, 222, 0.1);
+    }
+
+    33% {
+        border-color: rgba(0, 255, 204, 0.4);
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.1);
+    }
+
+    66% {
+        border-color: rgba(51, 51, 255, 0.5);
+        box-shadow: 0 0 8px rgba(51, 51, 255, 0.1);
+    }
+
+    100% {
+        border-color: rgba(255, 0, 222, 0.4);
+        box-shadow: 0 0 8px rgba(255, 0, 222, 0.1);
+    }
+}
+
+/* --- Main Input --- */
+#quick-input {
+    flex-grow: 1;
+    /* Fills available space */
     background: transparent;
     border: none;
     outline: none;
-    font-size: 18px;
-    /* Reduced font size */
-    line-height: 1;
-    color: var(--text-color);
-    font-weight: 400;
-    font-family: 'Inter', sans-serif;
-    caret-color: #ff99cc;
+
+    /* Typography */
+    /* font-family: 'JetBrains Mono', 'Consolas', monospace; */
+    font-family: inherit;
+    font-size: 14px;
+    color: #cccccc;
+
+    /* Textarea Specifics */
+    resize: none;
+    height: 24px;
+    /* Default single line height */
+    line-height: 24px;
+    overflow: hidden;
+    /* Hide scrollbar in single mode */
 }
 
-input::placeholder {
-    color: rgba(255, 255, 255, 0.3);
-    font-style: normal;
-    font-weight: 300;
+.expanded #quick-input {
+    height: 100%;
+    /* Fill space in expanded mode */
+    overflow-y: auto;
+    /* Scroll if needed */
+    line-height: 1.5;
+}
+
+#quick-input::placeholder {
+    color: #555;
+}
+
+/* The "LOG" Button / Indicator */
+.log-button {
+    padding: 4px 12px;
+    /* Larger button */
+    background: #252526;
+    border-radius: 3px;
+
+    color: #ffffff;
+    font-family: var(--font-family);
+    font-size: 11px;
+    /* Slightly larger text */
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: default;
+    border: 1px solid #333;
+
+    animation: rgbText 12s linear infinite;
+}
+
+
+@keyframes rgbText {
+    0% {
+        color: rgba(255, 0, 222, 0.7);
+    }
+
+    33% {
+        color: rgba(0, 255, 204, 0.7);
+    }
+
+    66% {
+        color: rgba(51, 51, 255, 0.7);
+    }
+
+    100% {
+        color: rgba(255, 0, 222, 0.7);
+    }
 }
 
 @keyframes breatheDeep {
@@ -124,17 +259,5 @@ input::placeholder {
     50% {
         opacity: 0.8;
         transform: scale(1.02);
-    }
-}
-
-@keyframes breatheLight {
-    0% {
-        opacity: 0.3;
-        transform: scale(0.98);
-    }
-
-    100% {
-        opacity: 0.6;
-        transform: scale(1.05);
     }
 }

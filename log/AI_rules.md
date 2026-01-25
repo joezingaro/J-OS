@@ -31,7 +31,13 @@ Your goal is to **APPEND** or **MODIFY** content in **[TARGET_FILE]** with stric
 **📝 STRICT FILE FORMATTING RULES (DO NOT VIOLATE):**
 * **Target File:** **[TARGET_FILE]** only.
 * **Line Format:** `- (X) [YYYY-MM-DD] **[TAG]** Content... #optional_tags`
-* **Global Sequential Numbering (CRITICAL):** ALWAYS start every bullet with a unique sequential number `(X)`. This number MUST be the next highest available number in the **ENTIRE FILE**, regardless of the project section. This allows for unambiguous referencing of any item by its ID.
+* **Global Sequential Numbering (CRITICAL):** ALWAYS start every bullet with a unique sequential number `(PREFIX + X)`.
+    *   **Prefix Map:**
+        *   `q` = Quick Capture (`q1`, `q2`...)
+        *   `p` = Personal (`p1`, `p2`...)
+        *   `w` = Work (`w1`, `w2`...)
+        *   `i` = Inbox (`i1`, `i2`...)
+    *   **Example:** `- (w42) [2026-01-25] **[TASK]**...`
 * **Routing Hashtags:** The user may use hashtags (e.g., `#ch`, `#home`, `#personal`) to assist with routing items to the correct file or project. You MUST **strip these hashtags** from the final output line before writing to the log.
 * **Timestamps:** Start every bullet with the **[Current Session Date]**. Do not include HH:MM.
 * **Negative Constraint:** NEVER use the format `- task: ...`. Always use the `**[TAG]**` style.

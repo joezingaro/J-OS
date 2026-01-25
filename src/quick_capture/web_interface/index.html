@@ -9,9 +9,36 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="inner-box">
-            <input type="text" id="quick-input" placeholder="Capture your thought...">
+    <div class="container" id="main-container">
+        <!-- Window Header (Drag Grip) -->
+        <div class="window-header">
+            <div class="drag-grip"></div>
+        </div>
+
+        <!-- Main Area: Input + Controls -->
+        <div class="input-area">
+            <textarea id="quick-input" rows="1" placeholder=">> Input log entry... (Shift+Enter for new line)"
+                autocomplete="off"></textarea>
+
+            <!-- Controls Group -->
+            <div class="controls-area">
+                <div class="log-button">LOG ITEM</div>
+
+                <!-- Maximize Button -->
+                <div class="control-btn max-btn" title="Toggle Expand">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    </svg>
+                </div>
+
+                <!-- Close Button -->
+                <div class="control-btn close-btn" title="Close">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -35,35 +62,132 @@
             "Sounds awful."
         ];
 
+        function setRandomPlaceholder() {
+            const input = document.getElementById('quick-input');
+            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+            input.placeholder = `${randomPrompt} - Marvin`;
+        }
+
+        // Called by Python to trigger the snappy slide-up
+        function triggerEntrance() {
+            const container = document.getElementById('main-container');
+            // Remove class -> Flux Layout -> Add Class to restart animation
+            container.classList.remove('animate-enter');
+            void container.offsetWidth; // Trigger reflow
+            container.classList.add('animate-enter');
+
+            // Also randomize the prompt on every open
+            setRandomPlaceholder();
+        }
+
         window.onload = function () {
             const input = document.getElementById('quick-input');
 
-            // Randomize Placeholder
-            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-            input.placeholder = randomPrompt;
+            triggerEntrance(); // Animate on first load too
 
             input.focus();
 
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    // Title Transport: Signal backend to close
-                    document.title = "CMD:CLOSE";
-                }
+            // Maximize Toggle Logic
+            window.expanded = false; // Global for resetUI
+            document.querySelector('.max-btn').addEventListener('click', () => {
+                window.expanded = !window.expanded;
+                document.getElementById('main-container').classList.toggle('expanded', window.expanded);
+                document.title = (window.expanded ? "CMD:MAXIMIZE" : "CMD:MINIMIZE") + ":" + Date.now();
             });
 
+
+
+            // Input Enter Key Logic
             input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
+                if (e.key === 'Escape') {
+                    document.title = "CMD:CLOSE:" + Date.now();
+                    return;
+                }
+
+                // Allow Shift+Enter for new lines
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); // Prevent newline
                     const text = input.value;
-                    if (text) {
-                        console.log("Capturing via Title:", text);
-                        // Title Transport: Signal backend to save
+                    if (text.trim()) {
                         document.title = "CMD:SAVE:" + text;
-                        input.value = "";
-                        // Pick a new random prompt for the next one
-                        input.placeholder = prompts[Math.floor(Math.random() * prompts.length)];
+                        input.value = ""; // Clear
+                        setRandomPlaceholder(); // Set new placeholder after saving
+
+                        // Reset expansion on save?
+                        if (expanded) {
+                            document.querySelector('.max-btn').click(); // toggle back
+                        }
                     }
                 }
             });
+
+            // Drag Logic (Robust JS Trigger)
+            const header = document.querySelector('.window-header');
+            header.addEventListener('mousedown', (e) => {
+                e.preventDefault(); // Prevent text selection/native drag
+                document.title = "CMD:START_DRAG:" + Date.now();
+            });
+
+            // Close Logic with Reset Confirmation
+            let resetConfirm = false;
+            const closeBtn = document.querySelector('.close-btn');
+
+            closeBtn.addEventListener('click', (e) => {
+                if (!resetConfirm) {
+                    // First Click: Arm Reset
+                    resetConfirm = true;
+                    closeBtn.classList.add('confirm');
+                    closeBtn.innerHTML = "X"; // Maybe visual change?
+
+                    // Auto-revert if not clicked again in 3s
+                    setTimeout(() => {
+                        resetConfirm = false;
+                        closeBtn.classList.remove('confirm');
+                        closeBtn.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                             <line x1="18" y1="6" x2="6" y2="18"></line>
+                             <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>`;
+                    }, 3000);
+                } else {
+                    // Second Click: Trigger Full Reset
+                    document.title = "CMD:RESET_CLOSE:" + Date.now();
+                    // Reset UI State immediately
+                    resetConfirm = false;
+                    closeBtn.classList.remove('confirm');
+                }
+            });
+
+            // Log Button Logic
+            document.querySelector('.log-button').addEventListener('click', () => {
+                const text = input.value;
+                if (text.trim()) {
+                    document.title = "CMD:SAVE:" + text;
+                    resetUI();
+                }
+            });
+        }
+
+        // Exposed setup for Python to call if needed, or internal use
+        function resetUI() {
+            const input = document.getElementById('quick-input');
+            input.value = "";
+            setRandomPlaceholder();
+
+            // Reset Expand State
+            const container = document.getElementById('main-container');
+            container.classList.remove('expanded');
+            window.expanded = false;
+            // Update Py side via Title if needed? Python handles its own geometry reset.
+
+            // Reset internal state variable
+            // Note: We need to access the 'expanded' var from local scope? 
+            // Better to just click the btn if it's expanded?
+            if (document.getElementById('main-container').classList.contains('expanded')) {
+                // But wait, we just removed the class.
+                // We need to sync the toggle button icon/state if we had one?
+                // The max-btn state is just a class toggle.
+            }
         }
     </script>
 </body>

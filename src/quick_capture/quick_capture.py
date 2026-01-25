@@ -3,12 +3,15 @@ import os
 import threading
 from pynput import keyboard
 
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QLineEdit, QSizeGrip
+from PyQt6.QtGui import QCursor
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebEngineCore import QWebEnginePage
-from PyQt6.QtWebChannel import QWebChannel
-from PyQt6.QtCore import QUrl, QObject, pyqtSlot, Qt, QMetaObject, Q_ARG, QTimer, QEvent
+from PyQt6.QtGui import QAction, QKeySequence, QIcon, QCursor
+from PyQt6.QtCore import QUrl, QObject, pyqtSlot, Qt, QPoint, QMetaObject, Q_ARG, QTimer, QEvent
 from datetime import datetime
+import ctypes
+from ctypes import wintypes
 
 # --- Configuration ---
 DEBUG_MODE = False  # Set to False for production to disable auto-quit and auto-show
@@ -33,6 +36,7 @@ class Backend(QObject):
         # print("Backend: Close requested")
         QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
 
+    @pyqtSlot(str)
     def handle_title_change(self, title):
         # Title Transport Mechanism
         # JS sets title to "CMD:SAVE:Content" or "CMD:CLOSE"
@@ -40,6 +44,15 @@ class Backend(QObject):
         
         if title.startswith("CMD:CLOSE"):
             self.close_window()
+        elif title.startswith("CMD:MAXIMIZE"):
+            self.window.toggle_maximize(True)
+        elif title.startswith("CMD:MINIMIZE"):
+            self.window.toggle_maximize(False)
+        elif title.startswith("CMD:START_DRAG"):
+            # Robust JS Triggered Drag
+            self.window.start_drag_timer()
+        elif title.startswith("CMD:RESET_CLOSE"):
+            self.window.reset_and_close()
         elif title.startswith("CMD:SAVE:"):
             content = title[9:] # Strip "CMD:SAVE:"
             self.save_content(content)
@@ -56,6 +69,11 @@ class Backend(QObject):
             project_root = os.path.dirname(src_dir) # Project Root
             inbox_path = os.path.join(project_root, 'log', 'inbox.md')
             
+            # DEBUG: Use explicit absolute path for validation
+            print(f"DEBUG: Calculated inbox path: {inbox_path}")
+            if not os.path.exists(inbox_path):
+                 print(f"DEBUG: WARNING - File does not exist: {inbox_path}")
+
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
             entry = f"- [ ] [{timestamp}] **[INBOX]** {text}\n"
             
@@ -64,8 +82,7 @@ class Backend(QObject):
                 
             print(f"Saved to {inbox_path}")
             
-            # DEV MODE: Do not hide on save
-            # QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
+            QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
             
         except Exception as e:
             print(f"Error saving content: {e}")
@@ -75,16 +92,21 @@ class QuickCaptureWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        # DEV MODE: Frameless but with resizing enabled manually if needed, or just standard window for testing
-        # For true "move around", standard window frame is best, or we implement custom drag.
-        # Let's switch to a standard window frame so you can drag/resize easily for this test.
-        # self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
-        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint) # Keep on top, but add frame back
-        
+        # Production Mode: Frameless, Transparent, Tool
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.resize(1000, 85)
-        self.center()
+        
+        # Dimensions: Match new CSS compact style (Taller for status bar)
+        self.resize(800, 85) 
+        
+        # Drag Timer for Robustness
+        self.drag_timer = QTimer(self)
+        self.drag_timer.setInterval(10) # 100fps check
+        self.drag_timer.timeout.connect(self.process_drag)
+        self.drag_offset = None
 
+        self.is_pinned = False # If True, auto-hide is disabled
+        
         # Web View
         self.browser = QWebEngineView()
         self.browser.setStyleSheet("background: transparent;")
@@ -110,12 +132,45 @@ class QuickCaptureWindow(QMainWindow):
         self.browser.load(QUrl.fromLocalFile(index_path))
         
         print(f"Loaded: {index_path}")
+        
+        self.position_bottom_center()
+
+    def position_bottom_center(self):
+        screen = QApplication.primaryScreen()
+        if screen:
+            geo = screen.availableGeometry() # Respects Taskbar
+            
+            x = geo.center().x() - (self.width() // 2)
+            y = geo.bottom() - self.height() - 50 # 50px float from bottom
+            
+            self.move(x, y)
 
     def center(self):
-        screen = QApplication.primaryScreen().geometry()
-        x = (screen.width() - self.width()) // 2
-        y = (screen.height() - self.height()) // 2
-        self.move(x, y)
+         # Redundant but kept if called elsewhere; redirect to bottom center for consistency
+         self.position_bottom_center()
+    
+    def reset_and_close(self):
+        print("Backend: Full Reset & Close")
+        self.is_pinned = False
+        self.resizing = False
+        self.resize(800, 85) # Reset Size
+        self.position_bottom_center() # Reset Position
+        # JS Input reset is handled by JS before calling this command
+        self.hide_window()
+
+    def start_drag_timer(self):
+        # Called when JS Header MouseDown happens
+        self.drag_offset = QCursor.pos() - self.frameGeometry().topLeft()
+        self.drag_timer.start()
+        
+    def process_drag(self):
+        # Check logical mouse state globally
+        # (This bypasses WebEngine eating events)
+        if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
+            self.move(QCursor.pos() - self.drag_offset)
+        else:
+            self.drag_timer.stop()
+            self.drag_offset = None
     
     def force_focus(self):
         # Windows-specific hack to force focus to this window from background
@@ -139,28 +194,70 @@ class QuickCaptureWindow(QMainWindow):
             else:
                 user32.BringWindowToTop(our_hwnd)
                 user32.SetForegroundWindow(our_hwnd)
-    
+
     def changeEvent(self, event):
         if event.type() == QEvent.Type.ActivationChange:
             if not self.isActiveWindow():
-                # print("Lost focus, hiding window...")
-                pass # self.hide()
+                if not self.is_pinned:
+                    # print("Lost focus, hiding window...")
+                    self.hide_window()
         super().changeEvent(event)
-    
-    def eventFilter(self, source, event):
-        # Capture Escape key on the browser widget
-        if event.type() == QEvent.Type.KeyPress:
-            # ANALYTICAL DEBUG: Print key pressed
-            # print(f"EventFilter Key: {event.key()}")
-            if event.key() == Qt.Key.Key_Escape:
-                print("EventFilter: Escape pressed - Hiding (DISABLED)")
-                # self.hide_window()
-                return True # Consume event
-        return super().eventFilter(source, event)
 
+    def toggle_maximize(self, expand):
+        current_geo = self.geometry()
+        current_bottom = current_geo.bottom()
+        
+        if expand:
+            # Grow UPWARDS to 500px
+            new_h = 500
+            new_y = current_bottom - new_h + 1 # +1 to maintain bottom alignment pixel perfect
+        else:
+            # Shrink back to 85px (Standard Mode)
+            new_h = 85
+            new_y = current_bottom - new_h + 1
+            
+        self.setGeometry(current_geo.x(), new_y, current_geo.width(), new_h)
+
+    def reset_state(self):
+        self.toggle_maximize(False) # Shrink
+        self.position_bottom_center() # Reset Pos
+        self.page.runJavaScript("resetUI();")
+
+    @pyqtSlot()
+    def reset_and_hide(self):
+        print("Resetting and Hiding")
+        self.reset_state()
+        self.actual_hide()
+
+    @pyqtSlot()
+    def hide_window(self):
+        print("Hiding Window (State Preserved)")
+        self.actual_hide()
+
+    def actual_hide(self):
+        self.hide()
+        self.is_pinned = False
+
+    def eventFilter(self, source, event):
+        # Handle Keys (Escape)
+        if event.type() == QEvent.Type.KeyPress:
+             self.is_pinned = True
+             if event.key() == Qt.Key.Key_Escape:
+                print("EventFilter: Escape pressed - Hiding")
+                self.hide_window()
+                return True 
+        
+        # Mouse events for dragging are now handled by JS Trigger + Python Timer
+        # Only keeping KeyPress logic here.
+        
+        return super().eventFilter(source, event)
+    
     @pyqtSlot()
     def show_capture(self):
         print("Showing Window")
+        
+        # Ensure position is correct every show (in case of screen changes)
+        # self.position_bottom_center()
         
         self.force_focus()
         
@@ -171,12 +268,13 @@ class QuickCaptureWindow(QMainWindow):
         self.activateWindow()
         self.browser.setFocus()
         
+        # Trigger the Snappy Animation via JS
+        self.page.runJavaScript("triggerEntrance();")
+        
         # ANALYTICAL FIX: Ensure Event Filter is on the actual focus proxy
-        # WebEngine creates a child widget that handles input. We need THAT one.
         if self.browser.focusProxy():
              self.browser.focusProxy().installEventFilter(self)
         else:
-             # Fallback if no proxy (rare in older Qt, but safe check)
              for child in self.browser.children():
                  if child.metaObject().className() == "QtWebEngineCore::RenderWidgetHostViewQtDelegateWidget":
                      child.installEventFilter(self)
@@ -192,13 +290,62 @@ class QuickCaptureWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
-            pass # self.hide_window()
+            self.hide_window()
         super().keyPressEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            # Check if bottom-right corner for resize (approx 20px zone)
+            if event.position().x() > self.width() - 20 and event.position().y() > self.height() - 20:
+                self.resizing = True
+                self.drag_position = event.globalPosition().toPoint()
+            else:
+                self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if event.buttons() & Qt.MouseButton.LeftButton:
+            if self.resizing:
+                 # Resize Logic
+                 delta = event.globalPosition().toPoint() - self.drag_position
+                 # Update size (min width 400, min height 50)
+                 new_w = max(400, self.width() + delta.x())
+                 new_h = max(50, self.height() + delta.y())
+                 # Simplified resize - for robust corner resizing, we'd need to track original size
+                 # This is a basic implementation sufficient for "drag corner" feel
+                 self.resize(event.position().x(), event.position().y())
+            elif self.drag_position:
+                self.move(event.globalPosition().toPoint() - self.drag_position)
+        super().mouseMoveEvent(event)
+        
+    def mouseReleaseEvent(self, event):
+        self.resizing = False
+        self.drag_position = None
+        super().mouseReleaseEvent(event) # Call super method for MouseReleaseEvent
+        
+    # The following mouseReleaseEvent was provided in the instruction but is a duplicate and contains
+    # an incorrect call to eventFilter. The logic for mouse release is already handled by the eventFilter
+    # for the browser widget, and the above mouseReleaseEvent for the main window is the correct place
+    # for any window-level release logic.
+    # def mouseReleaseEvent(self, event):
+    #      # If using standard window frame, this is called. 
+    #      # But with eventFilter, we handle it there.
+    #      # Actually eventFilter might not catch 'Release' if we didn't consume 'Press'.
+    #      pass
 
     @pyqtSlot()
     def hide_window(self):
-        print("Hiding Window (DISABLED)")
-        # self.hide()
+        # Trigger Exit Animation -> Wait -> Hide
+        self.page.runJavaScript("document.getElementById('main-container').classList.add('animate-exit');")
+        QTimer.singleShot(200, self.actual_hide) # Wait for CSS transition
+        
+    def actual_hide(self):
+         self.hide()
+         # Reset Pin State on Hide? User requested "persist UNLESS hit escape/x"
+         # So if we are hiding via escape/x (which call hide_window), we hide.
+         # But focusing out should NOT hide if pinned.
+         # self.is_pinned = False # Reset pin state on explicit close - Assuming self.is_pinned exists
+         self.page.runJavaScript("document.getElementById('main-container').classList.remove('animate-exit');") # Reset for next show
 
 # --- Hotkey Listener ---
 def start_listener(app, window):
