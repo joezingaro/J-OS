@@ -47,3 +47,5 @@ To build a **future-proof, text-file-based Operating System** for executive mana
 * **Permissions:** All `pip` installs must be user-scoped. No system-level changes.
 * **Paths:** Use relative paths (`os.path.join`). Never hardcode `C:\Users\...`.
 * **OS:** Windows 11 (Corporate Environment).
+
+ALWAYS check for a local AI_rules.md in the subfolder you are working in (e.g., src/quick_capture/AI_rules.md) for tool-specific rules.

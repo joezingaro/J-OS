@@ -19,9 +19,12 @@ Your goal is to **APPEND** or **MODIFY** content in `work_log_2026.md` with stri
         * "Idea", "Thought" → `**[IDEA]**`
         * "Check with", "Ask" → `**[TOVALIDATE]**`
 2.  **Project Detection:**
-    * Identify the target project based on keywords (e.g., "WMSS", "Momentum", "Data Gov").
-    * **Auto-Triage:** If no project is clear, assign to **Inbox / Unsorted**.
-    * **New Projects:** Only create a new Header if the user explicitly says "Create Project: X".
+    *   Identify the target project based on keywords (e.g., "WMSS", "Momentum", "Data Gov").
+    *   **Synchronization Rule:** ANY project header found in `work_log_2026.md` MUST be listed in the "KNOWN PROJECTS" list below.
+        *   **Protocol:** If you match a project in the file that is NOT in the rules, **ASK ME**: "I found project 'X' in the log but not in the rules. Add it?"
+        *   **Action:** On approval, update `CH/AI_rules.md` immediately to keep it in sync.
+    *   **Auto-Triage:** If no project is clear, assign to **Inbox / Unsorted**.
+    *   **New Projects:** Only create a new Header if the user explicitly says "Create Project: X".
 3.  **Execution:**
     * Append the line to the correct section in `work_log_2026.md`.
 
@@ -62,6 +65,7 @@ When a task is marked as finished (e.g., "Mark the SQL bug as done") or cancelle
 5.  **CONFIRM:** Reply with a confirmation message.
 
 **📂 KNOWN PROJECTS (Target Headers):**
+0.  Urgent Tasks
 1.  WMSS Time Tracking
 2.  Momentum Hub 2025 Q4 Updates
 3.  Momentum Hub 2026 Updates

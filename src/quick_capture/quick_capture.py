@@ -51,9 +51,10 @@ class Backend(QObject):
             return
             
         try:
-            current_dir = os.path.dirname(os.path.abspath(__file__))
-            root_dir = os.path.dirname(current_dir)
-            inbox_path = os.path.join(root_dir, 'data', 'inbox.md')
+            current_dir = os.path.dirname(os.path.abspath(__file__)) # src/quick_capture
+            src_dir = os.path.dirname(current_dir) # src
+            project_root = os.path.dirname(src_dir) # Project Root
+            inbox_path = os.path.join(project_root, 'CH', 'inbox.md')
             
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
             entry = f"- [ ] [{timestamp}] **[INBOX]** {text}\n"
@@ -98,7 +99,7 @@ class QuickCaptureWindow(QMainWindow):
 
         # Load Content
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        web_dir = os.path.join(os.path.dirname(current_dir), 'web')
+        web_dir = os.path.join(current_dir, 'web_interface')
         index_path = os.path.join(web_dir, 'index.html')
         self.browser.load(QUrl.fromLocalFile(index_path))
         
