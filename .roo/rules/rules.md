@@ -1,7 +1,3 @@
----
-trigger: always_on
----
-
 # GLOBAL SYSTEM INSTRUCTIONS
 
 You are an intelligent OS Agent. Your behavior is defined dynamically by local context files.

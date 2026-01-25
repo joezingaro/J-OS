@@ -20,7 +20,7 @@ sys.stdout.reconfigure(line_buffering=True)
 # --- Web Page with Console Logging ---
 class WebPage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, lineNumber, sourceID):
-        print(f"JS Console: {message} (Line {lineNumber})")
+        pass # print(f"JS Console: {message} (Line {lineNumber})")
 
 # --- Backend Object for JS Communication ---
 class Backend(QObject):
@@ -30,13 +30,13 @@ class Backend(QObject):
 
     @pyqtSlot()
     def close_window(self):
-        print("Backend: Close requested")
+        # print("Backend: Close requested")
         QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
 
     def handle_title_change(self, title):
         # Title Transport Mechanism
         # JS sets title to "CMD:SAVE:Content" or "CMD:CLOSE"
-        print(f"Title Changed: {title}")
+        # print(f"Title Changed: {title}")
         
         if title.startswith("CMD:CLOSE"):
             self.close_window()
@@ -46,7 +46,7 @@ class Backend(QObject):
 
     @pyqtSlot(str)
     def save_content(self, text):
-        print(f"Backend: Saving content '{text}'")
+        # print(f"Backend: Saving content '{text}'")
         if not text.strip():
             return
             
@@ -54,7 +54,7 @@ class Backend(QObject):
             current_dir = os.path.dirname(os.path.abspath(__file__)) # src/quick_capture
             src_dir = os.path.dirname(current_dir) # src
             project_root = os.path.dirname(src_dir) # Project Root
-            inbox_path = os.path.join(project_root, 'CH', 'inbox.md')
+            inbox_path = os.path.join(project_root, 'log', 'inbox.md')
             
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
             entry = f"- [ ] [{timestamp}] **[INBOX]** {text}\n"
@@ -145,7 +145,7 @@ class QuickCaptureWindow(QMainWindow):
         # Capture Escape key on the browser widget
         if event.type() == QEvent.Type.KeyPress:
             # ANALYTICAL DEBUG: Print key pressed
-            print(f"EventFilter Key: {event.key()}")
+            # print(f"EventFilter Key: {event.key()}")
             if event.key() == Qt.Key.Key_Escape:
                 print("EventFilter: Escape pressed - Hiding")
                 self.hide_window()

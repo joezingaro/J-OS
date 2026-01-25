@@ -20,15 +20,16 @@ To build a **future-proof, text-file-based Operating System** for executive mana
 ## 3. 🏗️ Architecture
 
 ### A. The Database (Storage Layer)
-* **Location:** `/data` directory.
-* **`work_log_2026.md`:** The primary ledger for tasks, projects, and logs. Strict formatting required.
-* **`inbox.md`:** The "Dump" zone for raw, unprocessed thoughts.
-* **`/meetings/`:** Folder for unstructured meeting notes.
+* **Location:** `/log` directory.
+* **`log/CH/work_log_2026.md`:** The primary ledger for corporate tasks.
+* **`log/CH/inbox.md`:** The "Dump" zone for raw, unprocessed corporate thoughts.
+* **`log/Personal/personal_log_2026.md`:** The primary ledger for personal tasks.
+* **`/log/CH/meetings/`:** Folder for unstructured meeting notes.
 
 ### B. The Satellite (Input Layer)
-* **Tool:** `tools/quick_capture.py`
+* **Tool:** `src/quick_capture/quick_capture.py`
 * **Tech Stack:** Python 3.12
-* **Behavior:** A global hotkey (`Ctrl+Alt+Space`) triggers a borderless, modern HTML popup. It appends text to `inbox.md`.
+* **Behavior:** A global hotkey (`Ctrl+Shift+Space`) triggers a borderless, modern HTML popup. It appends text to `log/CH/inbox.md`.
 
 ### C. The Dashboard (Visualization Layer)
 * **Tool:** `tools/dashboard_server.py`
