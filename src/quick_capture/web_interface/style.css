@@ -1,12 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
 :root {
-    --bg-color: rgba(18, 18, 18, 0.95);
-    --input-bg: rgba(255, 255, 255, 0.05);
-    --text-color: #ffffff;
-    --accent-color: #6366f1;
-    /* Indigo-500 */
-    --glow-color: rgba(99, 102, 241, 0.5);
+    --bg-color: #1a1a1a;
+    --text-color: #e0e0e0;
+    --border-radius: 9999px;
 }
 
 body {
@@ -18,22 +15,82 @@ body {
     justify-content: center;
     align-items: center;
     background-color: transparent;
-    /* Rely on pywebview transparency if active, or fallback in window config */
     font-family: 'Inter', sans-serif;
     overflow: hidden;
 }
 
+/* The Container - Robust Flex Centering */
 .container {
-    width: 80%;
-    /* Responsive width */
-    max-width: 600px;
-    background: var(--bg-color);
-    padding: 20px;
-    border-radius: 16px;
-    backdrop-filter: blur(12px);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    animation: fadeIn 0.3s ease-out;
+    position: relative;
+    width: 90%;
+    max-width: 900px;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Static background */
+    background: #0f0f12;
+    border-radius: var(--border-radius);
+
+    /* 
+       LAYER 1: The "Razor" Neon Border 
+       No pseudo-elements, just a solid border that we will animate via color.
+       This is bulletproof.
+    */
+    border: 1px solid transparent;
+    /* Super thin 1px border */
+    /* Placeholder for gradient */
+    background-image: linear-gradient(#0f0f12, #0f0f12),
+        linear-gradient(90deg, #ff00de, #00ffcc, #3333ff);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+
+    /* 
+       LAYER 2: The "Laser" Glow 
+       Much tighter shadow with less blur to look sharp.
+    */
+    box-shadow: 0 0 4px rgba(255, 0, 222, 0.8);
+
+    animation: gradientBorder 4s linear infinite,
+        breathingShadow 3s ease-in-out infinite alternate;
+}
+
+/* No Pseudo-elements needed for valid, robust rendering */
+.container::before,
+.container::after {
+    display: none;
+}
+
+/* The Static Input Box - Interior Only */
+.inner-box {
+    width: 100%;
+    height: 100%;
+    /* Transparent because container handles the black bg */
+    background: transparent;
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+}
+
+@keyframes gradientBorder {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}
+
+@keyframes breathingShadow {
+    0% {
+        box-shadow: 0 0 2px rgba(255, 0, 222, 0.5), inset 0 0 0px transparent;
+    }
+
+    100% {
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.9), inset 0 0 2px rgba(255, 255, 255, 0.1);
+    }
 }
 
 input {
@@ -41,35 +98,43 @@ input {
     background: transparent;
     border: none;
     outline: none;
-    font-size: 24px;
+    font-size: 18px;
+    /* Reduced font size */
+    line-height: 1;
     color: var(--text-color);
-    font-weight: 600;
-    padding: 10px 0;
+    font-weight: 400;
+    font-family: 'Inter', sans-serif;
+    caret-color: #ff99cc;
 }
 
 input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-    font-weight: 400;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: normal;
+    font-weight: 300;
 }
 
-/* Subtle glowing line at the bottom */
-.glow-line {
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-    opacity: 0.8;
-    margin-top: 5px;
-    border-radius: 2px;
-}
+@keyframes breatheDeep {
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    50% {
+        opacity: 0.8;
+        transform: scale(1.02);
+    }
+}
+
+@keyframes breatheLight {
+    0% {
+        opacity: 0.3;
+        transform: scale(0.98);
+    }
+
+    100% {
+        opacity: 0.6;
+        transform: scale(1.05);
     }
 }

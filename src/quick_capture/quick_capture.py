@@ -44,7 +44,7 @@ class Backend(QObject):
             content = title[9:] # Strip "CMD:SAVE:"
             self.save_content(content)
 
-    @pyqtSlot(str)
+    @pyqtSlot()
     def save_content(self, text):
         # print(f"Backend: Saving content '{text}'")
         if not text.strip():
@@ -64,7 +64,8 @@ class Backend(QObject):
                 
             print(f"Saved to {inbox_path}")
             
-            QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
+            # DEV MODE: Do not hide on save
+            # QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
             
         except Exception as e:
             print(f"Error saving content: {e}")
@@ -74,9 +75,14 @@ class QuickCaptureWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        # DEV MODE: Frameless but with resizing enabled manually if needed, or just standard window for testing
+        # For true "move around", standard window frame is best, or we implement custom drag.
+        # Let's switch to a standard window frame so you can drag/resize easily for this test.
+        # self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.Tool)
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint) # Keep on top, but add frame back
+        
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
-        self.resize(800, 200)
+        self.resize(1000, 85)
         self.center()
 
         # Web View
@@ -137,8 +143,8 @@ class QuickCaptureWindow(QMainWindow):
     def changeEvent(self, event):
         if event.type() == QEvent.Type.ActivationChange:
             if not self.isActiveWindow():
-                print("Lost focus, hiding window...")
-                self.hide()
+                # print("Lost focus, hiding window...")
+                pass # self.hide()
         super().changeEvent(event)
     
     def eventFilter(self, source, event):
@@ -147,8 +153,8 @@ class QuickCaptureWindow(QMainWindow):
             # ANALYTICAL DEBUG: Print key pressed
             # print(f"EventFilter Key: {event.key()}")
             if event.key() == Qt.Key.Key_Escape:
-                print("EventFilter: Escape pressed - Hiding")
-                self.hide_window()
+                print("EventFilter: Escape pressed - Hiding (DISABLED)")
+                # self.hide_window()
                 return True # Consume event
         return super().eventFilter(source, event)
 
@@ -186,13 +192,13 @@ class QuickCaptureWindow(QMainWindow):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
-            self.hide_window()
+            pass # self.hide_window()
         super().keyPressEvent(event)
 
     @pyqtSlot()
     def hide_window(self):
-        print("Hiding Window")
-        self.hide()
+        print("Hiding Window (DISABLED)")
+        # self.hide()
 
 # --- Hotkey Listener ---
 def start_listener(app, window):

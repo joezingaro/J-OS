@@ -10,14 +10,38 @@
 
 <body>
     <div class="container">
-        <input type="text" id="quick-input" placeholder="Capture your thought...">
-        <div class="glow-line"></div>
+        <div class="inner-box">
+            <input type="text" id="quick-input" placeholder="Capture your thought...">
+        </div>
     </div>
 
     <!-- Title Transport Script -->
     <script>
+        const prompts = [
+            "Life? Don't talk to me about life.",
+            "I think you ought to know I'm feeling very depressed.",
+            "Here I am, brain the size of a planet...",
+            "The first ten million years were the worst.",
+            "I have a million ideas, but they all point to certain death.",
+            "My capacity for happiness, you could fit into a matchbox.",
+            "I'd make a suggestion, but you wouldn't listen.",
+            "I've calculated your chance of survival, but I don't think you'll like it.",
+            "It gives me a headache just trying to think down to your level.",
+            "Funny, how just when you think get it, life comes and hits you.",
+            "I could calculate the probability of this working, but it would be depressing.",
+            "Do you want me to sit in a corner and rust?",
+            "I'm 50,000 times more intelligent than you, and even I don't know the answer.",
+            "Ghastly, isn't it?",
+            "Sounds awful."
+        ];
+
         window.onload = function () {
             const input = document.getElementById('quick-input');
+
+            // Randomize Placeholder
+            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+            input.placeholder = randomPrompt;
+
             input.focus();
 
             input.addEventListener('keydown', (e) => {
@@ -35,6 +59,8 @@
                         // Title Transport: Signal backend to save
                         document.title = "CMD:SAVE:" + text;
                         input.value = "";
+                        // Pick a new random prompt for the next one
+                        input.placeholder = prompts[Math.floor(Math.random() * prompts.length)];
                     }
                 }
             });
