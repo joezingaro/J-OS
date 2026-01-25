@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Capture</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <input type="text" id="quick-input" placeholder="Capture your thought...">
+        <div class="glow-line"></div>
+    </div>
+
+    <!-- Title Transport Script -->
+    <script>
+        window.onload = function () {
+            const input = document.getElementById('quick-input');
+            input.focus();
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    // Title Transport: Signal backend to close
+                    document.title = "CMD:CLOSE";
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const text = input.value;
+                    if (text) {
+                        console.log("Capturing via Title:", text);
+                        // Title Transport: Signal backend to save
+                        document.title = "CMD:SAVE:" + text;
+                        input.value = "";
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

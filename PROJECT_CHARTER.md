@@ -43,7 +43,7 @@ To build a **future-proof, text-file-based Operating System** for executive mana
 ---
 
 ## 4. 🛑 Technical Constraints (Strict Rules)
-* **Python Version:** **Python 3.12** ONLY. (Do not use 3.14/Preview versions).
+* **Python Version:** **Python 3.12** is the default. Other tools/languages (e.g., Node.js, Rust) are permitted if they offer superior capability and are approved by the User.
 * **Permissions:** All `pip` installs must be user-scoped. No system-level changes.
 * **Paths:** Use relative paths (`os.path.join`). Never hardcode `C:\Users\...`.
 * **OS:** Windows 11 (Corporate Environment).

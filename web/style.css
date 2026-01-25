@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+    --bg-color: rgba(18, 18, 18, 0.95);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --text-color: #ffffff;
+    --accent-color: #6366f1;
+    /* Indigo-500 */
+    --glow-color: rgba(99, 102, 241, 0.5);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    /* Rely on pywebview transparency if active, or fallback in window config */
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+}
+
+.container {
+    width: 80%;
+    /* Responsive width */
+    max-width: 600px;
+    background: var(--bg-color);
+    padding: 20px;
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.3s ease-out;
+}
+
+input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 24px;
+    color: var(--text-color);
+    font-weight: 600;
+    padding: 10px 0;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+    font-weight: 400;
+}
+
+/* Subtle glowing line at the bottom */
+.glow-line {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
+    opacity: 0.8;
+    margin-top: 5px;
+    border-radius: 2px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
