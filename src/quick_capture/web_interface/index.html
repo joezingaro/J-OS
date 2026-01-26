@@ -5,190 +5,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Capture</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Point to shared vendor script -->
+    <script src="../../vendor/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-pink': '#ff00de',
+                        'neon-blue': '#3333ff',
+                        'neon-cyan': '#00ffcc',
+                        'dark-bg': '#1e1e1e',
+                        'panel-bg': '#252526',
+                        'border-color': '#333333',
+                    },
+                    fontFamily: {
+                        'mono': ['"Source Code Pro"', 'monospace'],
+                    },
+                    animation: {
+                        'rgb-border': 'rgbBorder 12s linear infinite',
+                        'rgb-text': 'rgbText 12s linear infinite',
+                        'explode': 'explode 0.6s forwards cubic-bezier(0.16, 1, 0.3, 1)',
+                    },
+                    keyframes: {
+                        rgbBorder: {
+                            '0%, 100%': { borderColor: 'rgba(255, 0, 222, 0.9)', boxShadow: '0 0 10px rgba(255, 0, 222, 0.3)' },
+                            '33%': { borderColor: 'rgba(0, 255, 204, 0.9)', boxShadow: '0 0 10px rgba(0, 255, 204, 0.3)' },
+                            '66%': { borderColor: 'rgba(51, 51, 255, 0.9)', boxShadow: '0 0 10px rgba(51, 51, 255, 0.3)' },
+                        },
+                        rgbText: {
+                            '0%, 100%': { color: 'rgba(255, 0, 222, 0.9)' },
+                            '33%': { color: 'rgba(0, 255, 204, 0.9)' },
+                            '66%': { color: 'rgba(51, 51, 255, 0.9)' },
+                        },
+                        explode: {
+                            '0%': { opacity: '1', transform: 'translate(0,0) rotate(0) scale(1)' },
+                            '100%': { opacity: '0', transform: 'translate(var(--tx), var(--ty)) rotate(var(--r)) scale(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .drag-zone {
+            -webkit-app-region: no-drag;
+            cursor: grab;
+        }
+
+        .resize-handle {
+            cursor: nwse-resize;
+            background: linear-gradient(135deg, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
+        }
+
+        textarea::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
 </head>
 
-<body>
-    <div class="container" id="main-container">
-        <!-- Window Header (Drag Grip) -->
-        <div class="window-header">
-            <div class="drag-grip"></div>
-        </div>
+<body
+    class="flex justify-center items-end h-screen w-screen pb-5 font-mono selection:bg-neon-pink selection:text-white">
 
-        <!-- Main Area: Input + Controls -->
-        <div class="input-area">
-            <textarea id="quick-input" rows="1" placeholder=">> Input log entry... (Shift+Enter for new line)"
-                autocomplete="off"></textarea>
+    <!-- Main Container -->
+    <div id="main-container"
+        class="relative w-[95%] max-w-[950px] h-full flex flex-col bg-dark-bg rounded-lg border border-transparent shadow-2xl transition-all duration-300 animate-rgb-border opacity-100 scale-100 origin-center text-sm text-[#cccccc]">
 
-            <!-- Controls Group -->
-            <div class="controls-area">
-                <div class="log-button">LOG ITEM</div>
-
-                <!-- Maximize Button -->
-                <div class="control-btn max-btn" title="Toggle Expand">
+        <!-- Header -->
+        <div class="h-8 w-full flex items-center px-4 shrink-0 bg-transparent">
+            <div class="drag-zone grow h-full" id="drag-zone"></div>
+            <div class="flex items-center gap-3">
+                <button id="max-btn"
+                    class="w-6 h-6 flex items-center justify-center rounded text-gray-500 hover:text-white hover:bg-white/10 transition-colors">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                     </svg>
-                </div>
-
-                <!-- Close Button -->
-                <div class="control-btn close-btn" title="Close">
+                </button>
+                <button id="close-btn"
+                    class="w-6 h-6 flex items-center justify-center rounded text-gray-500 hover:text-red-500 hover:bg-red-500/10 transition-colors">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                </div>
+                </button>
             </div>
+        </div>
+
+        <!-- Body: Input + Log Button (FIXED LAYOUT: items-stretch) -->
+        <div id="body-area" class="flex grow items-stretch px-4 pt-0 pb-3 w-full relative">
+            <!-- Wrapper for particle effects -->
+            <div id="input-wrapper" class="grow flex items-stretch relative">
+                <textarea id="quick-input" rows="1"
+                    class="w-full bg-transparent border-none outline-none resize-none h-6 leading-6 placeholder-gray-600 transition-all duration-200"
+                    placeholder=">> Type something... (Shift+Enter for new line)" autocomplete="off"></textarea>
+            </div>
+
+            <!-- Log Button (Self-End for bottom alignment) -->
+            <button id="log-button"
+                class="self-end mb-0 ml-3 px-3 py-1 bg-panel-bg rounded border border-border-color text-white text-xs font-bold tracking-wide animate-rgb-text hover:brightness-110 active:scale-95 transition-all">
+                LOG ITEM
+            </button>
+        </div>
+
+    </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="success-toast"
+        class="fixed inset-0 pointer-events-none flex items-center justify-center opacity-0 scale-75 transition-all duration-300 z-[100]">
+        <div
+            class="px-6 py-3 bg-dark-bg border border-neon-cyan rounded-full shadow-[0_0_20px_rgba(0,255,204,0.3)] text-neon-cyan font-bold tracking-wider text-lg animate-pulse">
+            MESSAGE LOGGED
         </div>
     </div>
 
-    <!-- Title Transport Script -->
     <script>
-        const prompts = [
-            "Life? Don't talk to me about life.",
-            "I think you ought to know I'm feeling very depressed.",
-            "Here I am, brain the size of a planet...",
-            "The first ten million years were the worst.",
-            "I have a million ideas, but they all point to certain death.",
-            "My capacity for happiness, you could fit into a matchbox.",
-            "I'd make a suggestion, but you wouldn't listen.",
-            "I've calculated your chance of survival, but I don't think you'll like it.",
-            "It gives me a headache just trying to think down to your level.",
-            "Funny, how just when you think get it, life comes and hits you.",
-            "I could calculate the probability of this working, but it would be depressing.",
-            "Do you want me to sit in a corner and rust?",
-            "I'm 50,000 times more intelligent than you, and even I don't know the answer.",
-            "Ghastly, isn't it?",
-            "Sounds awful."
-        ];
+        const container = document.getElementById('main-container');
+        const bodyArea = document.getElementById('body-area');
+        const inputWrapper = document.getElementById('input-wrapper');
+        const input = document.getElementById('quick-input');
+        const toast = document.getElementById('success-toast');
+        const logBtn = document.getElementById('log-button');
+        const dragZone = document.getElementById('drag-zone');
+        // Drag Zone is now visual-only or handled by hit-test coordinates
+        const maxBtn = document.getElementById('max-btn');
+        const closeBtn = document.getElementById('close-btn');
 
-        function setRandomPlaceholder() {
-            const input = document.getElementById('quick-input');
-            const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-            input.placeholder = `${randomPrompt} - Marvin`;
+        const prompts = ["Ready to capture.", "What's on your mind?", "Log it before you lose it."];
+
+        function setPlaceholder() {
+            input.placeholder = `>> ${prompts[Math.floor(Math.random() * prompts.length)]}`;
         }
 
-        // Called by Python to trigger the snappy slide-up
-        function triggerEntrance() {
-            const container = document.getElementById('main-container');
-            // Remove class -> Flux Layout -> Add Class to restart animation
-            container.classList.remove('animate-enter');
-            void container.offsetWidth; // Trigger reflow
-            container.classList.add('animate-enter');
-
-            // Also randomize the prompt on every open
-            setRandomPlaceholder();
+        function saveData(text) {
+            if (!text.trim()) return;
+            document.title = "CMD:SAVE:" + text;
+            // No Animation - Instant Close is handled by Py backend response (or title trigger)
+            resetUI();
         }
 
-        window.onload = function () {
-            const input = document.getElementById('quick-input');
-
-            triggerEntrance(); // Animate on first load too
-
-            input.focus();
-
-            // Maximize Toggle Logic
-            window.expanded = false; // Global for resetUI
-            document.querySelector('.max-btn').addEventListener('click', () => {
-                window.expanded = !window.expanded;
-                document.getElementById('main-container').classList.toggle('expanded', window.expanded);
-                document.title = (window.expanded ? "CMD:MAXIMIZE" : "CMD:MINIMIZE") + ":" + Date.now();
-            });
 
 
-
-            // Input Enter Key Logic
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    document.title = "CMD:CLOSE:" + Date.now();
-                    return;
-                }
-
-                // Allow Shift+Enter for new lines
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault(); // Prevent newline
-                    const text = input.value;
-                    if (text.trim()) {
-                        document.title = "CMD:SAVE:" + text;
-                        input.value = ""; // Clear
-                        setRandomPlaceholder(); // Set new placeholder after saving
-
-                        // Reset expansion on save?
-                        if (expanded) {
-                            document.querySelector('.max-btn').click(); // toggle back
-                        }
-                    }
-                }
-            });
-
-            // Drag Logic (Robust JS Trigger)
-            const header = document.querySelector('.window-header');
-            header.addEventListener('mousedown', (e) => {
-                e.preventDefault(); // Prevent text selection/native drag
-                document.title = "CMD:START_DRAG:" + Date.now();
-            });
-
-            // Close Logic with Reset Confirmation
-            let resetConfirm = false;
-            const closeBtn = document.querySelector('.close-btn');
-
-            closeBtn.addEventListener('click', (e) => {
-                if (!resetConfirm) {
-                    // First Click: Arm Reset
-                    resetConfirm = true;
-                    closeBtn.classList.add('confirm');
-                    closeBtn.innerHTML = "X"; // Maybe visual change?
-
-                    // Auto-revert if not clicked again in 3s
-                    setTimeout(() => {
-                        resetConfirm = false;
-                        closeBtn.classList.remove('confirm');
-                        closeBtn.innerHTML = `
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                             <line x1="18" y1="6" x2="6" y2="18"></line>
-                             <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>`;
-                    }, 3000);
-                } else {
-                    // Second Click: Trigger Full Reset
-                    document.title = "CMD:RESET_CLOSE:" + Date.now();
-                    // Reset UI State immediately
-                    resetConfirm = false;
-                    closeBtn.classList.remove('confirm');
-                }
-            });
-
-            // Log Button Logic
-            document.querySelector('.log-button').addEventListener('click', () => {
-                const text = input.value;
-                if (text.trim()) {
-                    document.title = "CMD:SAVE:" + text;
-                    resetUI();
-                }
-            });
-        }
-
-        // Exposed setup for Python to call if needed, or internal use
         function resetUI() {
-            const input = document.getElementById('quick-input');
             input.value = "";
-            setRandomPlaceholder();
+            setPlaceholder();
 
-            // Reset Expand State
-            const container = document.getElementById('main-container');
-            container.classList.remove('expanded');
+            // Reset Animation State (Cleanup just in case)
+            input.classList.remove('opacity-0');
+            logBtn.classList.remove('opacity-0');
+
+            // Reset Maximize State
             window.expanded = false;
-            // Update Py side via Title if needed? Python handles its own geometry reset.
-
-            // Reset internal state variable
-            // Note: We need to access the 'expanded' var from local scope? 
-            // Better to just click the btn if it's expanded?
-            if (document.getElementById('main-container').classList.contains('expanded')) {
-                // But wait, we just removed the class.
-                // We need to sync the toggle button icon/state if we had one?
-                // The max-btn state is just a class toggle.
-            }
+            container.classList.remove('expanded');
+            input.classList.remove('h-full', 'items-start'); // Reset expanded class logic
+            input.classList.add('h-6');
         }
+
+        // --- Event Listeners ---
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.title = "CMD:CLOSE:" + Date.now();
+            } else if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                saveData(input.value);
+            }
+        });
+
+        // Log Button
+        logBtn.addEventListener('click', () => saveData(input.value));
+
+        // Dragging - TRIGGER SYSTEM MOVE
+        dragZone.addEventListener('mousedown', (e) => {
+            if (e.button === 0) { // Left Click Only
+                document.title = "CMD:START_DRAG:" + Date.now();
+            }
+        });
+
+        // Maximize Logic (Fix Layout)
+        window.expanded = false;
+        maxBtn.addEventListener('click', () => {
+            window.expanded = !window.expanded;
+            if (window.expanded) {
+                container.classList.add('expanded');
+                // Make input stretch to fill
+                input.classList.remove('h-6');
+                input.classList.add('h-full');
+            } else {
+                container.classList.remove('expanded');
+                input.classList.remove('h-full');
+                input.classList.add('h-6');
+            }
+            document.title = (window.expanded ? "CMD:MAXIMIZE" : "CMD:MINIMIZE") + ":" + Date.now();
+            input.focus();
+        });
+
+        // Close (Hide Window)
+        // Close Logic: Two-Stage (Activate -> Confirm)
+        let closeResetTimer = null;
+
+        function resetCloseButtonState() {
+            if (closeResetTimer) clearTimeout(closeResetTimer);
+            closeBtn.classList.remove('text-red-500', 'bg-red-500/20');
+            closeBtn.classList.add('text-gray-500', 'hover:text-red-500', 'hover:bg-red-500/10'); // Restore original classes
+        }
+
+        closeBtn.addEventListener('click', (e) => {
+            const isArmed = closeBtn.classList.contains('text-red-500');
+
+            if (isArmed) {
+                // CONFIRMATION CLICK: Reset & Close
+                document.title = "CMD:RESET_CLOSE:" + Date.now();
+                resetCloseButtonState();
+                setTimeout(resetUI, 50);
+            } else {
+                // ACTIVATION CLICK: Arm the button
+                // Remove hover classes to keep it "stuck" in active state
+                closeBtn.classList.remove('text-gray-500', 'hover:text-red-500', 'hover:bg-red-500/10');
+                closeBtn.classList.add('text-red-500', 'bg-red-500/20');
+
+                // Auto-reset state if not confirmed within 2 seconds
+                if (closeResetTimer) clearTimeout(closeResetTimer);
+                closeResetTimer = setTimeout(resetCloseButtonState, 2000);
+            }
+        });
+
+        setPlaceholder();
+        input.focus();
     </script>
 </body>
 

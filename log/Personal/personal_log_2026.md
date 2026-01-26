@@ -4,6 +4,8 @@
 # Joseph's Personal Log - 2026
 
 ## 🚨 Project: Urgent Tasks
+- (p6) [2026-01-25] **[TASK]** Cancel Cogeco
+- (p7) [2026-01-25] **[TASK]** Reach out to Mike re: Decision on website (Due: 2026-01-30)
 
 ## 💰 Project: Transfer Pensions to Wealthsimple
 - (p1) [2026-01-24] **[TASK]** Follow up on HOOPP Transfer (expected in 8 weeks -> Towards end of march)

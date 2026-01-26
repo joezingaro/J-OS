@@ -49,10 +49,10 @@ class Backend(QObject):
         elif title.startswith("CMD:MINIMIZE"):
             self.window.toggle_maximize(False)
         elif title.startswith("CMD:START_DRAG"):
-            # Robust JS Triggered Drag
-            self.window.start_drag_timer()
+            self.window.start_system_drag()
         elif title.startswith("CMD:RESET_CLOSE"):
             self.window.reset_and_close()
+        # Legacy CMD:START_DRAG / RESIZE removed - Native handled
         elif title.startswith("CMD:SAVE:"):
             content = title[9:] # Strip "CMD:SAVE:"
             self.save_content(content)
@@ -82,6 +82,7 @@ class Backend(QObject):
                 
             print(f"Saved to {inbox_path}")
             
+            # Instant Close (Animation Reverted)
             QMetaObject.invokeMethod(self.window, "hide_window", Qt.ConnectionType.QueuedConnection)
             
         except Exception as e:
@@ -97,15 +98,11 @@ class QuickCaptureWindow(QMainWindow):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         
         # Dimensions: Match new CSS compact style (Taller for status bar)
-        self.resize(800, 85) 
-        
-        # Drag Timer for Robustness
-        self.drag_timer = QTimer(self)
-        self.drag_timer.setInterval(10) # 100fps check
-        self.drag_timer.timeout.connect(self.process_drag)
-        self.drag_offset = None
-
+        self.resize(800, 115) 
+         
         self.is_pinned = False # If True, auto-hide is disabled
+        
+        # Resizing Removed per User Request (Fixed Size)
         
         # Web View
         self.browser = QWebEngineView()
@@ -144,6 +141,7 @@ class QuickCaptureWindow(QMainWindow):
             y = geo.bottom() - self.height() - 50 # 50px float from bottom
             
             self.move(x, y)
+            print(f"DEBUG: Positioned at {x}, {y} (Screen: {geo.width()}x{geo.height()})")
 
     def center(self):
          # Redundant but kept if called elsewhere; redirect to bottom center for consistency
@@ -153,47 +151,56 @@ class QuickCaptureWindow(QMainWindow):
         print("Backend: Full Reset & Close")
         self.is_pinned = False
         self.resizing = False
-        self.resize(800, 85) # Reset Size
-        self.position_bottom_center() # Reset Position
-        # JS Input reset is handled by JS before calling this command
-        self.hide_window()
-
-    def start_drag_timer(self):
-        # Called when JS Header MouseDown happens
-        self.drag_offset = QCursor.pos() - self.frameGeometry().topLeft()
-        self.drag_timer.start()
         
-    def process_drag(self):
-        # Check logical mouse state globally
-        # (This bypasses WebEngine eating events)
-        if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
-            self.move(QCursor.pos() - self.drag_offset)
-        else:
-            self.drag_timer.stop()
-            self.drag_offset = None
+        # Hide FIRST to avoid jarring flash of resizing window
+        self.hide_window()
+        
+        # Then Reset State off-screen
+        self.resize(800, 115) # Reset Size
+        self.position_bottom_center() # Reset Position
+
+    # --- Native Event Override Removed (Unstable on Py3.12/Win) ---
+    # Using Qt startSystemMove instead for safe native dragging
+    
+    @pyqtSlot()
+    def start_system_drag(self):
+        # Native Qt Drag (Safe)
+        self.windowHandle().startSystemMove()
+
+    # Resizing Removed
+
+    # start_system_resize REMOVED (Replaced by Native HitTest)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+
+
     
     def force_focus(self):
         # Windows-specific hack to force focus to this window from background
         if sys.platform == "win32":
-            import ctypes
-            from ctypes import wintypes
-            
-            user32 = ctypes.windll.user32
-            
-            foreground_hwnd = user32.GetForegroundWindow()
-            foreground_thread_id = user32.GetWindowThreadProcessId(foreground_hwnd, None)
-            
-            our_hwnd = int(self.winId())
-            our_thread_id = user32.GetWindowThreadProcessId(our_hwnd, None)
-            
-            if foreground_thread_id != our_thread_id:
-                user32.AttachThreadInput(foreground_thread_id, our_thread_id, True)
-                user32.BringWindowToTop(our_hwnd)
-                user32.SetForegroundWindow(our_hwnd)
-                user32.AttachThreadInput(foreground_thread_id, our_thread_id, False)
-            else:
-                user32.BringWindowToTop(our_hwnd)
-                user32.SetForegroundWindow(our_hwnd)
+            try:
+                import ctypes
+                from ctypes import wintypes
+                
+                user32 = ctypes.windll.user32
+                
+                foreground_hwnd = user32.GetForegroundWindow()
+                foreground_thread_id = user32.GetWindowThreadProcessId(foreground_hwnd, None)
+                
+                our_hwnd = int(self.winId())
+                our_thread_id = user32.GetWindowThreadProcessId(our_hwnd, None)
+                
+                if foreground_thread_id != our_thread_id:
+                    user32.AttachThreadInput(foreground_thread_id, our_thread_id, True)
+                    user32.BringWindowToTop(our_hwnd)
+                    user32.SetForegroundWindow(our_hwnd)
+                    user32.AttachThreadInput(foreground_thread_id, our_thread_id, False)
+                else:
+                    user32.BringWindowToTop(our_hwnd)
+                    user32.SetForegroundWindow(our_hwnd)
+            except Exception as e:
+                print(f"Force Focus Error: {e}")
 
     def changeEvent(self, event):
         if event.type() == QEvent.Type.ActivationChange:
@@ -269,7 +276,7 @@ class QuickCaptureWindow(QMainWindow):
         self.browser.setFocus()
         
         # Trigger the Snappy Animation via JS
-        self.page.runJavaScript("triggerEntrance();")
+        # self.page.runJavaScript("triggerEntrance();") # Disabled as function was removed
         
         # ANALYTICAL FIX: Ensure Event Filter is on the actual focus proxy
         if self.browser.focusProxy():
@@ -293,45 +300,9 @@ class QuickCaptureWindow(QMainWindow):
             self.hide_window()
         super().keyPressEvent(event)
 
-    def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            # Check if bottom-right corner for resize (approx 20px zone)
-            if event.position().x() > self.width() - 20 and event.position().y() > self.height() - 20:
-                self.resizing = True
-                self.drag_position = event.globalPosition().toPoint()
-            else:
-                self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
-        super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if event.buttons() & Qt.MouseButton.LeftButton:
-            if self.resizing:
-                 # Resize Logic
-                 delta = event.globalPosition().toPoint() - self.drag_position
-                 # Update size (min width 400, min height 50)
-                 new_w = max(400, self.width() + delta.x())
-                 new_h = max(50, self.height() + delta.y())
-                 # Simplified resize - for robust corner resizing, we'd need to track original size
-                 # This is a basic implementation sufficient for "drag corner" feel
-                 self.resize(event.position().x(), event.position().y())
-            elif self.drag_position:
-                self.move(event.globalPosition().toPoint() - self.drag_position)
-        super().mouseMoveEvent(event)
-        
-    def mouseReleaseEvent(self, event):
-        self.resizing = False
-        self.drag_position = None
-        super().mouseReleaseEvent(event) # Call super method for MouseReleaseEvent
-        
-    # The following mouseReleaseEvent was provided in the instruction but is a duplicate and contains
-    # an incorrect call to eventFilter. The logic for mouse release is already handled by the eventFilter
-    # for the browser widget, and the above mouseReleaseEvent for the main window is the correct place
-    # for any window-level release logic.
-    # def mouseReleaseEvent(self, event):
-    #      # If using standard window frame, this is called. 
-    #      # But with eventFilter, we handle it there.
-    #      # Actually eventFilter might not catch 'Release' if we didn't consume 'Press'.
-    #      pass
+    # Legacy Mouse Events (Press/Move/Release) REMOVED
+    # to avoid conflict with nativeEvent WM_NCHITTEST logic
+    # -----------------------------------------------------
 
     @pyqtSlot()
     def hide_window(self):
