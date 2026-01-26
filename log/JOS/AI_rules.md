@@ -5,9 +5,9 @@
 
 **KNOWN PROJECTS:**
 *   J-OS Core
-*   Quick Capture
+*   Quick Capture Input
 *   System Utils
 
 **TRANSLATION MAP:**
 *   "J-OS", "System", "Core" -> Project: **J-OS Core**
-*   "Quick Capture", "QC", "Popup" -> Project: **Quick Capture**
+*   "Quick Capture", "QC", "Popup" -> Project: **Quick Capture Input**

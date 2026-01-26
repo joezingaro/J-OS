@@ -1,0 +1,19 @@
+{
+  "resources": [
+    {
+      "filePath": "log\\CH\\work_log_2026.md",
+      "group": "Default"
+    },
+    {
+      "filePath": "log\\JOS\\jos_capture_log.md",
+      "group": "Default"
+    },
+    {
+      "filePath": "log\\Personal\\personal_log_2026.md",
+      "group": "Default"
+    }
+  ],
+  "groups": [
+    "Default"
+  ]
+}

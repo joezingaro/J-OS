@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J-OS Command Deck</title>
+    <!-- Tailwind -->
+    <script src="/vendor/tailwind.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-pink': '#ff00de',
+                        'neon-blue': '#3333ff',
+                        'neon-cyan': '#00ffcc',
+                        'neon-red': '#ff3333',
+                        'neon-yellow': '#ffff00',
+                        'dark-bg': '#0f0f0f',
+                        'glass-bg': 'rgba(20, 20, 20, 0.7)',
+                    },
+                    fontFamily: {
+                        'mono': ['"Source Code Pro"', 'monospace'],
+                        'sans': ['"Inter"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Highlight.js -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- CodeMirror 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+
+<body class="bg-dark-bg text-gray-300 font-sans h-screen w-screen overflow-hidden flex flex-col">
+
+    <!-- Top Bar -->
+    <header
+        class="h-14 bg-glass-bg backdrop-blur-md border-b border-white/10 flex items-center justify-between px-6 shrink-0 z-30">
+        <div class="flex items-center gap-6">
+            <h1
+                class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-pink to-neon-blue tracking-tighter">
+                J-OS <span class="text-xs text-white/50 font-mono font-normal">Command Deck</span>
+            </h1>
+
+            <!-- Filter Bar (Deck Mode Only) -->
+            <div id="filter-bar" class="hidden flex items-center gap-2 overflow-x-auto no-scrollbar">
+                <div class="h-6 w-px bg-white/10 mx-2"></div>
+                <label
+                    class="flex items-center gap-2 text-xs font-bold text-gray-500 hover:text-white cursor-pointer select-none">
+                    <input type="checkbox" id="toggle-archives" class="accent-neon-pink">
+                    SHOW ARCHIVES
+                </label>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <button id="btn-new-item"
+                class="hidden md:flex items-center gap-2 px-3 py-1 bg-neon-blue/20 text-neon-blue border border-neon-blue/50 rounded hover:bg-neon-blue hover:text-white transition-all text-xs font-bold shadow-[0_0_10px_rgba(51,51,255,0.3)]">
+                <span>+ TRANSMISSION</span>
+            </button>
+
+            <!-- View Switcher -->
+            <div class="flex bg-black/40 rounded-lg p-1 border border-white/10">
+                <button id="btn-view-feed"
+                    class="px-3 py-1 text-xs font-bold rounded text-white bg-white/10 transition-all hover:text-neon-cyan">FEED</button>
+                <button id="btn-view-deck"
+                    class="px-3 py-1 text-xs font-bold rounded text-gray-500 hover:text-neon-pink transition-all">DECK</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex grow overflow-hidden relative">
+        <!-- 1. Left Sidebar -->
+        <nav class="w-64 h-full bg-glass-bg backdrop-blur-md border-r border-white/10 flex flex-col shrink-0 z-20 relative transition-all duration-300"
+            id="sidebar-left">
+            <div id="file-tree" class="overflow-y-auto grow p-4 space-y-2 custom-scrollbar"></div>
+            <div class="p-4 border-t border-white/10 text-xs text-center text-gray-600 font-mono">SYS.ONLINE</div>
+        </nav>
+
+        <!-- 2. Main Stage -->
+        <main class="grow h-full relative overflow-y-auto scroll-smooth bg-dark-bg" id="main-scroll-area">
+
+            <!-- VIEW: FEED -->
+            <div id="view-feed" class="max-w-4xl mx-auto py-10 px-8 space-y-12 transition-opacity duration-300"></div>
+
+            <!-- VIEW: DECK -->
+            <div id="view-deck" class="hidden p-8 transition-opacity duration-300">
+                <div class="max-w-6xl mx-auto space-y-12" id="deck-container"></div>
+            </div>
+
+            <div class="h-32"></div>
+        </main>
+
+        <!-- 3. Right Sidebar -->
+        <aside class="w-64 h-full hidden xl:flex flex-col border-l border-white/10 bg-glass-bg backdrop-blur-sm z-10"
+            id="sidebar-right">
+            <div class="p-6 border-b border-white/10">
+                <h2 class="text-xs font-bold text-neon-cyan uppercase tracking-widest">Context</h2>
+            </div>
+            <div id="toc-container" class="grow overflow-y-auto p-6 text-sm space-y-1 custom-scrollbar"></div>
+        </aside>
+    </div>
+
+    <!-- MODAL: WIZARD MODE -->
+    <dialog id="modal-new" class="bg-transparent p-0 backdrop:bg-black/90 backdrop:backdrop-blur-sm outline-none">
+        <form method="dialog"
+            class="bg-gray-900 border border-white/10 rounded-xl shadow-2xl w-[700px] overflow-hidden relative">
+            <!-- Header -->
+            <div class="bg-white/5 px-6 py-4 border-b border-white/10 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white tracking-wide">
+                    NEW TRANSMISSION
+                    <span id="wizard-step-indicator" class="text-xs text-gray-500 font-mono ml-3 font-normal">WIZARD
+                        MODE // ACTIVE</span>
+                </h3>
+                <button value="cancel" class="text-gray-500 hover:text-white transition-colors">✕</button>
+            </div>
+
+            <!-- Body: Steps -->
+            <div class="p-6">
+                <!-- STEP 1: TARGET FILE -->
+                <div id="wizard-step-1" class="space-y-4">
+                    <label class="text-xs font-mono text-neon-cyan uppercase flex justify-between">
+                        <span>Step 1: Select Target Log</span>
+                        <span class="text-[10px] text-gray-600">[1-9] SELECT | [0] INBOX</span>
+                    </label>
+                    <div id="log-speed-dial" class="grid grid-cols-4 gap-3">
+                        <!-- File Buttons -->
+                    </div>
+                </div>
+
+                <!-- STEP 2: TYPE -->
+                <div id="wizard-step-2" class="space-y-4 hidden">
+                    <label class="text-xs font-mono text-neon-pink uppercase flex justify-between">
+                        <span>Step 2: Select Type</span>
+                        <span class="text-[10px] text-gray-600">[1-9] SELECT | [0] TASK</span>
+                    </label>
+                    <div id="type-speed-dial" class="grid grid-cols-4 gap-3">
+                        <!-- Type Buttons -->
+                    </div>
+                </div>
+
+                <!-- STEP 3: CONTENT -->
+                <div id="wizard-step-3" class="space-y-4 hidden">
+                    <label class="text-xs font-mono text-white uppercase flex justify-between">
+                        <span>Step 3: Description</span>
+                        <span class="text-[10px] text-gray-600">ENTER to Submit | CTRL+ENTER to Batch</span>
+                    </label>
+                    <textarea id="modal-desc" rows="4"
+                        class="w-full bg-black/50 border border-white/10 rounded px-4 py-4 text-base text-white focus:border-neon-pink focus:outline-none resize-none font-medium placeholder-gray-700"
+                        placeholder="Enter details..."></textarea>
+                </div>
+
+            </div>
+        </form>
+    </dialog>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>

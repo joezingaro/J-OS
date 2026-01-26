@@ -1,0 +1,200 @@
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #ff00de;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Typography Tweaks */
+.prose h1,
+.prose h2 {
+    font-family: 'Source Code Pro', monospace;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 2em;
+    margin-bottom: 0.8em;
+}
+
+/* Specific H2 Styling (Main Headers) */
+.prose h2 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.3em;
+    color: #eee;
+}
+
+/* Refined H3/H4 (Sub-headers) */
+.prose h3 {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #aaa;
+    /* Dimmer */
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    /* No border */
+}
+
+.prose h4 {
+    font-size: 0.9em;
+    font-weight: 700;
+    color: #666;
+    /* Even dimmer */
+    margin-top: 1.2em;
+    margin-bottom: 0.4em;
+    text-transform: uppercase;
+}
+
+.prose p {
+    color: #a0a0a0;
+    line-height: 1.7;
+    margin-bottom: 1.2em;
+}
+
+.prose ul {
+    list-style-type: none;
+    /* Custom bullets usually handled by prose */
+    padding-left: 0;
+}
+
+.prose li {
+    margin-bottom: 0.5em;
+}
+
+/* Code Blocks */
+.prose pre {
+    background: #111 !important;
+    border: 1px solid #333;
+    border-radius: 6px;
+}
+
+/* --- THE DECK STYLES --- */
+
+/* Card Types */
+.card-type-TASK {
+    border-color: rgba(51, 51, 255, 0.4);
+    box-shadow: 0 0 15px rgba(51, 51, 255, 0.05);
+}
+
+.card-type-IDEA {
+    border-color: rgba(255, 0, 222, 0.4);
+    box-shadow: 0 0 15px rgba(255, 0, 222, 0.05);
+}
+
+.card-type-BUG {
+    border-color: rgba(255, 51, 51, 0.4);
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.05);
+}
+
+.card-type-NOTE {
+    border-color: rgba(0, 255, 204, 0.3);
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.05);
+}
+
+.deck-card {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    break-inside: avoid;
+}
+
+.deck-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Disintegration Animation */
+@keyframes disintegrate {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+        filter: blur(0px);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1) skewX(20deg);
+        filter: blur(5px) hue-rotate(90deg);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(0) translateY(-50px);
+        filter: blur(20px);
+    }
+}
+
+.disintegrating {
+    animation: disintegrate 0.6s forwards ease-in-out;
+    pointer-events: none;
+}
+
+/* DIALOG ANIMATION (Pop In) */
+dialog[open] {
+    animation: popIn 0.25s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+dialog::backdrop {
+    animation: backdropFade 0.25s ease-out forwards;
+}
+
+@keyframes backdropFade {
+    0% {
+        background: rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        background: rgba(0, 0, 0, 0.8);
+    }
+}
+
+
+/* CodeMirror Overrides */
+.CodeMirror {
+    height: auto;
+    min-height: 200px;
+    border-radius: 8px;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Utility: No Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

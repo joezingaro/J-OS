@@ -12,3 +12,13 @@ This log tracks updates, features, and bugs for the J-OS operating system layer.
 - (j6) [2026-01-25] **[IDEA]** Create "Brainstorming/Ideating" Docs: AI-assisted iteration from idea to outline/deliverable (distinct from meeting notes). For example, creating assets like 'build guides', or brainstorming a workshop.
 - (j7) [2026-01-25] **[FEATURE]** Develop "Morning Routine" Workflow: Interactive session to groom tasks, identify stale/urgent items, review upcoming meetings, and launch the Daily Note.
 - (j8) [2026-01-25] **[FEATURE]** Implement "Task Sync & Backlinking": Tasks created in notes/meetings sync to master logs with persistent IDs and back-links to source.
+- (j9) [2026-01-25] **[FEATURE]** ✅ **[DONE]** ~~Develop "Task Prioritization" system~~ (Completed: 2026-01-25)
+
+## Project: Quick Capture Input
+
+- (j10) [2026-01-25] **[TASK]** Update quick capture to write to a central inbox in the /log/ folder and then look into how to clean up from there
+- (j11) [2026-01-25] **[FEATURE]** Tags for easy categorization? (e.g. pull from existing projects or free form)
+- (j12) [2026-01-25] **[NOTE]** Workflow: Items go into center -> Numbered -> User provides instructions for batch processing.
+
+#### Done
+- (j13) [2026-01-25] **[IDEA]** ~~Is it possible for us to use AI on this to take all the tasks and put them in the right spots.~~ ✅ **[DONE]** (Completed: 2026-01-25; Added 'inbox triage' which sorts through inbox tasks)

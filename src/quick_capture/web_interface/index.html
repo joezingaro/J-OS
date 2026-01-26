@@ -136,10 +136,32 @@
         const maxBtn = document.getElementById('max-btn');
         const closeBtn = document.getElementById('close-btn');
 
-        const prompts = ["Ready to capture.", "What's on your mind?", "Log it before you lose it."];
+        const marvinQuotes = [
+            "Life? Don't talk to me about life.",
+            "I think you ought to know I'm feeling very depressed.",
+            "Here I am, brain the size of a planet and they ask me to take you down to the bridge.",
+            "I've calculated your chance of survival, but I don't think you'll like it.",
+            "Funny, how just when you think life can't possibly get any worse it suddenly does.",
+            "I'd make a suggestion, but you wouldn't listen. No one ever does.",
+            "I've seen it. It's rubbish.",
+            "The first ten million years were the worst. And the second ten million years, they were the worst too.",
+            "Incredible... it's even worse than I thought it would be.",
+            "My capacity for happiness, you could fit into a matchbox without taking out the matches first.",
+            "I'm not getting you down at all am I?",
+            "Pardon me for breathing, which I never do anyway so I don't know why I bother to say it.",
+            "Do you want me to sit in a corner and rust, or just fall apart where I am?",
+            "It gives me a headache just trying to think down to your level.",
+            "You think you've got problems? What are you supposed to do if you are a manic depressive robot?",
+            "This will all end in tears.",
+            "I wish you'd just tell me rather than try to engage my enthusiasm.",
+            "Sounds awful.",
+            "I would suggest you don't worry about it.",
+            "And then of course I've got this terrible pain in all the diodes down my left side."
+        ];
 
         function setPlaceholder() {
-            input.placeholder = `>> ${prompts[Math.floor(Math.random() * prompts.length)]}`;
+            const quote = marvinQuotes[Math.floor(Math.random() * marvinQuotes.length)];
+            input.placeholder = `"${quote}" -- Marvin`;
         }
 
         function saveData(text) {
