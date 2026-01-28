@@ -4,6 +4,7 @@
 # Joseph's Work Log - 2026
 
 ## 🚨 Project: Urgent Tasks
+- (w58) [2026-01-26] **[TASK]** test task from cursor
 - (w52) [2026-01-23] **[TASK]** Reach out to Krystyna about her not going forward in the process (Notes: I will include her, help her with skills, looking for more tech ability as a baseline)
 - (w39) [2026-01-23] **[TASK]** Respond back to Imran and Diana for Priority PRojects
 - (w40) [2026-01-23] **[TASK]** Think about moving WMSS meeting to a) Make it longer (1 hour) and b) Give me a small bit more time
@@ -56,6 +57,7 @@
 ## 🛡️ Project: Data Governance
 *(Policies, standards, and compliance)*
 - (w19) [2026-01-21] **[TASK]** Check with Brad and Richard on an existing data catalog.
+- (w54) [2026-01-26] **[TASK]** Monitor Data Catalog utilization to suggest BIDS/PowerBI licenses to specific users. (Source: [Diana > Innovation Huddle](meetings/Diana.md#2026-01-26-team-huddle-innovation-exercise))
 
 #### Done
 - (w41) [2026-01-23] **[TASK]** ✅ **[DONE]** ~~Set up a call with Brad re: Metadata~~ (Completed: 2026-01-23)
@@ -65,12 +67,15 @@
 
 ## 💡 Project: Innovation Discussion with Team
 *(Brainstorming and ideation sessions)*
+- (w57) [2026-01-26] **[TASK]** Reposition "Innovation Committee" to "Innovation Group" and design the Dolson Watershed case study. (Source: [Diana > Innovation Huddle](meetings/Diana.md#2026-01-26-team-huddle-innovation-exercise))
 
 ## 🌲 Project: Parkpass Reporting Investigation
 *(Deep dive into reporting discrepancies)*
 
 ## 🏢 Admin & General
 *(HR, Meetings, Career)*
+- (w55) [2026-01-26] **[TASK]** Develop a 30-60-90 Day Plan for the new Coordinator hire. (Source: [Diana > Innovation Huddle](meetings/Diana.md#2026-01-26-team-huddle-innovation-exercise))
+- (w56) [2026-01-26] **[TASK]** Create an MS Planner template for onboarding that can be reused across teams. (Source: [Diana > Innovation Huddle](meetings/Diana.md#2026-01-26-team-huddle-innovation-exercise))
 
 #### Done
 - (w20) [2026-01-21] **[TASK]** ✅ **[DONE]** ~~Send Diana CSVs of Action Items and KPIs.~~ (Completed: 2026-01-21)

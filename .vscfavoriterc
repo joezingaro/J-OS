@@ -11,9 +11,22 @@
     {
       "filePath": "log\\Personal\\personal_log_2026.md",
       "group": "Default"
+    },
+    {
+      "filePath": "src\\quick_capture\\quick_capture.py",
+      "group": "Default"
+    },
+    {
+      "filePath": "log\\inbox.md",
+      "group": "Default"
+    },
+    {
+      "filePath": "log\\temp\\innovation_workshop_todo.md",
+      "group": "Default"
     }
   ],
   "groups": [
-    "Default"
+    "Default",
+    "Tools"
   ]
 }

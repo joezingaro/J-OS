@@ -75,9 +75,12 @@ def get_log_files():
         if ".git" in dirs: dirs.remove(".git")
         
         for filename in filenames:
-            # Filter: Must be .md, not AI_rules, and either contain '_log' or be 'inbox.md'
+            # Filter: Must be .md, not AI_rules, and either contain '_log', be 'inbox.md', or be in a 'meetings' folder
             if filename.endswith(".md") and not filename.startswith("AI_rules"):
-                if "_log" in filename.lower() or filename.lower() == "inbox.md":
+                is_log = "_log" in filename.lower() or filename.lower() == "inbox.md"
+                is_meeting = "meetings" in os.path.basename(root).lower()
+                
+                if is_log or is_meeting:
                     full_path = os.path.join(root, filename)
                     rel_path = os.path.relpath(full_path, LOG_DIR)
                     

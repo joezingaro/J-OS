@@ -305,6 +305,79 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         initScrollSpy();
+        setupSmartLinking();
+    }
+
+    // --- Smart Linking Logic ---
+    function setupSmartLinking() {
+        // Remove old listeners if any (simple way: just re-add to container since we rewrite innerHTML)
+        // actually we can just use event delegation on the container
+    }
+
+    // Global delegation for stitchedContent
+    stitchedContent.addEventListener('click', (e) => {
+        const link = e.target.closest('a');
+        if (!link) return;
+
+        const href = link.getAttribute('href');
+        if (!href) return;
+
+        // Check if it's a markdown link (absolute or relative)
+        if (href.startsWith('file:///') || href.endsWith('.md') || href.includes('.md#')) {
+            e.preventDefault();
+            handleLocalLink(href);
+        }
+    });
+
+    function handleLocalLink(href) {
+        try {
+            // Flexible parsing for both file:/// and relative paths
+            const parts = href.split('#');
+            const pathPart = parts[0];
+            const hash = parts.length > 1 ? parts[1] : null;
+
+            // Extract Filename (works for file:///c:/foo/bar.md AND ../foo/bar.md)
+            const filename = pathPart.split('/').pop();
+            const decodedName = decodeURIComponent(filename);
+
+            // Find log
+            const targetLog = currentLogs.find(l => l.name === decodedName);
+
+            if (targetLog) {
+                if (viewDeck.classList.contains('hidden') === false) switchView('feed');
+
+                setTimeout(() => {
+                    const logCard = document.getElementById(`log-${targetLog.id}`);
+                    if (logCard) {
+                        let targetElement = logCard;
+
+                        if (hash) {
+                            const cleanHash = hash.replace('#', '');
+                            const idMatch = logCard.querySelector(`[id="${cleanHash}"]`);
+                            if (idMatch) {
+                                targetElement = idMatch;
+                            } else {
+                                const headers = logCard.querySelectorAll('h1, h2, h3, h4');
+                                for (let h of headers) {
+                                    const slug = h.innerText.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '');
+                                    if (slug.includes(cleanHash.toLowerCase()) || cleanHash.includes(slug)) {
+                                        targetElement = h;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        targetElement.classList.add('text-neon-pink', 'transition-colors', 'duration-500');
+                        setTimeout(() => targetElement.classList.remove('text-neon-pink'), 1500);
+                    }
+                }, 100);
+            } else {
+                console.warn("Linked file not found:", decodedName);
+            }
+        } catch (e) { console.error("Link err", e); }
     }
 
     // --- RESTORED: renderDeck ---

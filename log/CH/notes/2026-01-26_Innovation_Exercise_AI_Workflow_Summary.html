@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Collaboration Analytics</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #151b2b;
+            --text-main: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --font-main: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* Header Section */
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        h1 span {
+            font-weight: 700;
+            color: var(--accent-blue);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        .badge {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-blue);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(to bottom right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* The "Human Loop" Section */
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-green);
+            padding-left: 15px;
+        }
+
+        .interventions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .intervention-row {
+            display: flex;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .intervention-type {
+            width: 150px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .type-pivot {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .type-constraint {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .type-context {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--accent-green);
+        }
+
+        .intervention-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .quote {
+            font-family: 'Consolas', monospace;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+        }
+
+        .impact {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Footer */
+        .footer-note {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid #334155;
+            padding-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .intervention-row {
+                flex-direction: column;
+            }
+
+            .intervention-type {
+                width: 100%;
+                padding: 10px;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard">
+        <header>
+            <div>
+                <h1>Project <span>Co-Pilot</span></h1>
+                <p class="subtitle">Session Design: Innovation Huddle Strategy</p>
+            </div>
+            <div class="badge">Session Complete</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">16</div>
+                <div class="stat-label">Collaboration Turns</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Strategic Pivots</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">2</div>
+                <div class="stat-label">Frameworks Added</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">22m</div>
+                <div class="stat-label">Total Design Time</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">The "Human in the Loop" Impact</h2>
+
+        <div class="interventions">
+
+            <div class="intervention-row">
+                <div class="intervention-type type-pivot">Quality Control</div>
+                <div class="intervention-content">
+                    <div class="quote">"It would be really sweet if there was some kind of authoritative body...
+                        techniques we could borrow."</div>
+                    <div class="impact">➝ AI Result: Injected "Liberating Structures" and "IDEO Design Thinking" to
+                        validate the session.</div>
+                </div>
+            </div>
+
+            <div class="intervention-row">
+                <div class="intervention-type type-constraint">Hard Constraint</div>
+                <div class="intervention-content">
+                    <div class="quote">"Reminder the whole session should be 30 minutes at most."</div>
+                    <div class="impact">➝ AI Result: Refactored agenda from 45 mins to a "Sprint" format, removing the
+                        lecture component.</div>
+                </div>
+            </div>
+
+            <div class="intervention-row">
+                <div class="intervention-type type-context">Context Check</div>
+                <div class="intervention-content">
+                    <div class="quote">"I don't see a ton of voting... some jobs are pretty silo'd... I love the self
+                        ranking impact vs effort."</div>
+                    <div class="impact">➝ AI Result: Abandoned group voting mechanics. Pivot to "Individual Impact
+                        Matrix" to solve for siloed teams.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-note">
+            Outcome: A tailored 30-minute workshop strategy + "Meeting-in-a-Box" toolkit. <br>
+            <strong>Zero hallucinated ideas used. 100% human-verified strategy.</strong>
+        </div>
+    </div>
+
+</body>
+
+</html>

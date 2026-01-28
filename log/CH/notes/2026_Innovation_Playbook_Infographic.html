@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innovation Playbook for Leads - 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --page-bg: #ffffff;
+            --text-main: #1e293b;
+            /* Slate 800 */
+            --text-muted: #475569;
+            /* Slate 600 */
+            --primary: #0f172a;
+            /* Slate 900 */
+            --accent-blue: #2563eb;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--page-bg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            padding: 60px;
+            border-radius: 8px;
+            /* Slight radius for screen look */
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            margin-top: 50px;
+            /* More breathing room */
+        }
+
+        h2:first-of-type {
+            margin-top: 30px;
+        }
+
+        h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+
+        /* Strategy Box */
+        .strat-box {
+            background: #f8fafc;
+            border-left: 4px solid var(--accent-blue);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .strat-box.purple {
+            border-left-color: #7c3aed;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        /* Action */
+        .callout {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* Menu */
+        .menu-item {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 16px;
+        }
+
+        .menu-item:last-child {
+            border: none;
+        }
+
+        .menu-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        /* Visual Matrix */
+        .matrix-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            border-left: 2px solid #94a3b8;
+            border-bottom: 2px solid #94a3b8;
+            margin: 30px 0;
+            background: #f8fafc;
+        }
+
+        .axis-label {
+            position: absolute;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .y-axis {
+            top: -20px;
+            left: -10px;
+        }
+
+        .x-axis {
+            bottom: -25px;
+            right: 0;
+        }
+
+        .quadrant {
+            position: absolute;
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 6px;
+            width: 45%;
+            height: 45%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .q-quick-wins {
+            top: 5%;
+            left: 5%;
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #86efac;
+        }
+
+        .q-major {
+            top: 5%;
+            right: 5%;
+            background: #e0e7ff;
+            color: #3730a3;
+            border: 1px solid #a5b4fc;
+        }
+
+        .q-wasted {
+            bottom: 5%;
+            right: 5%;
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .q-fillers {
+            bottom: 5%;
+            left: 5%;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div style="margin-bottom: 50px;">
+            <h1>Innovation Playbook for Leads</h1>
+            <p class="subtitle">Tips and Tools to Spur Innovation</p>
+        </div>
+
+        <div class="grid-2">
+            <!-- Strategy -->
+            <div>
+                <h2>1. The Strategy</h2>
+                <p>Innovation is a balanced portfolio. Ensure your PEP includes both:</p>
+
+                <div class="strat-box">
+                    <span class="tag">Process</span>
+                    <h3>🐣 "Little i" Innovation</h3>
+                    <p>Removing friction. Saving 10 mins/day. Fixing broken forms.</p>
+                </div>
+                <div class="strat-box purple">
+                    <span class="tag">Transformation</span>
+                    <h3>🦖 "Big I" Innovation</h3>
+                    <p>New capabilities. Structural change. AI adoption. Strategic bets.</p>
+                </div>
+                <div style="font-size: 0.9rem; margin-top: 15px;">
+                    <strong>🎯 Goal:</strong> 2 Quick Wins + 1 Strategic Bet.
+                </div>
+            </div>
+
+            <!-- Diagnostic -->
+            <div>
+                <h2>2. The Diagnostic</h2>
+                <p>Host a workshop or gather feedback using the "Rose, Thorn, Bud" framework:</p>
+
+                <div style="margin-top: 25px;">
+                    <div style="display:flex; gap:12px; margin-bottom:15px; align-items:center;">
+                        <span style="font-size:1.5rem">🌹</span>
+                        <div><strong>Rose (Success):</strong> What is working well?</div>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-bottom:15px; align-items:center;">
+                        <span style="font-size:1.5rem">🌵</span>
+                        <div><strong>Thorn (Pain):</strong> What is broken? <br><span
+                                style="color:var(--accent-blue); font-size:0.85rem">→ Source of "Little i"</span></div>
+                    </div>
+                    <div style="display:flex; gap:12px; margin-bottom:15px; align-items:center;">
+                        <span style="font-size:1.5rem">🌱</span>
+                        <div><strong>Bud (Potential):</strong> What has promise? <br><span
+                                style="color:#7c3aed; font-size:0.85rem">→ Source of "Big I"</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action -->
+        <h2>3. The Action: Domain of Influence</h2>
+        <div class="grid-2">
+            <div>
+                <p>When you hit a "Thorn" that feels too big (e.g. "We need a new ERP"), use the <strong>15%
+                        Solution</strong> rule.</p>
+                <div class="callout">
+                    <h3 style="color:#166534">Domain of Influence</h3>
+                    <p style="color:#166534; margin:0">Focus on the <strong>15%</strong> you can control right now,
+                        rather than the <strong>85%</strong> that requires permission.</p>
+                </div>
+            </div>
+            <div style="padding-top:10px">
+                <ul style="list-style:none;">
+                    <li style="margin-bottom:12px; opacity:0.7">❌ <i>"We can't fix the whole ERP."</i></li>
+                    <li style="color: var(--accent-blue)">✅ <strong>"I can clean my data columns today so we are ready
+                            when it comes."</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <h2>4. The Innovation Menu</h2>
+        <p style="margin-bottom: 30px;">Small changes to team rhythm that signal "Innovation is safe here."</p>
+
+        <div class="grid-2">
+            <div>
+                <div class="menu-item">
+                    <div class="menu-icon">📉</div>
+                    <div>
+                        <h3>The Friday Fail Share</h3>
+                        <p><strong>Habit:</strong> Spend 5 minutes on Friday sharing one small thing that
+                            <em>didn't</em> work.<br>
+                            <strong>Why:</strong> Removes the fear of failure. If leaders admit mistakes, staff will
+                            attempt new things.
+                        </p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">🛑</div>
+                    <div>
+                        <h3>The "No-Meeting" PM</h3>
+                        <p><strong>Habit:</strong> Designate one afternoon (e.g., Thu 1-4pm) as deep-work time.<br>
+                            <strong>Why:</strong> Innovation requires focus. Constant context-switching kills creative
+                            thought.
+                        </p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">🏆</div>
+                    <div>
+                        <h3>The 10-Minute Demo</h3>
+                        <p><strong>Habit:</strong> End your weekly sync with a show-and-tell.<br>
+                            <strong>Why:</strong> Celebrates "makers" and makes hidden work visible.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="menu-item">
+                    <div class="menu-icon">🔄</div>
+                    <div>
+                        <h3>The 3-Question Retro</h3>
+                        <p><strong>Habit:</strong> Once a month, ask: <i>What should we Start? Stop? Continue?</i><br>
+                            <strong>Why:</strong> Prunes dead processes to make room for new ones.
+                        </p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-icon">📹</div>
+                    <div>
+                        <h3>Video Updates (Teams)</h3>
+                        <p><strong>Habit:</strong> Replace one long email per week with a 90-second screen
+                            recording.<br>
+                            <strong>Why:</strong> Higher fidelity, more human, and often faster than typing perfect
+                            prose.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facilitation -->
+        <h2>5. Facilitation Guide: Running Your Session</h2>
+        <p>How to run a 30-min "Impact vs Effort" exercise to gather ideas.</p>
+
+        <div class="grid-2">
+            <div>
+                <ol style="padding-left: 20px; line-height: 1.8; color: var(--text-muted);">
+                    <li><strong>Brain Dump (7m):</strong> Ask team to write down their THORNS (Pain points) on sticky
+                        notes.</li>
+                    <li><strong>Map It (10m):</strong> Drag stickies onto the Matrix (see chart).</li>
+                    <li><strong>Select (8m):</strong>
+                        <ul style="padding-left: 20px; font-size: 0.9rem;">
+                            <li>Identify <strong>Quick Wins</strong>.</li>
+                            <li>Pick 1 <strong>Major Project</strong>.</li>
+                            <li>Delete <strong>Wasted Effort</strong>.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Commit (5m):</strong> Assign owners to the winners.</li>
+                </ol>
+            </div>
+
+            <!-- Visual Chart -->
+            <div>
+                <div class="matrix-container">
+                    <div class="axis-label y-axis">Impact</div>
+                    <div class="axis-label x-axis">Effort</div>
+
+                    <div class="quadrant q-quick-wins">
+                        <strong>Quick Wins</strong>
+                        <span>High Impact<br>Low Effort</span>
+                    </div>
+                    <div class="quadrant q-major">
+                        <strong>Major Projects</strong>
+                        <span>High Impact<br>High Effort</span>
+                    </div>
+                    <div class="quadrant q-fillers">
+                        Fillers
+                    </div>
+                    <div class="quadrant q-wasted">
+                        Wasted Effort
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <strong>Created by:</strong> Joseph Zingaro, Business Innovation and Data Solutions Lead (BIDS)
+        </div>
+    </div>
+
+</body>
+
+</html>
